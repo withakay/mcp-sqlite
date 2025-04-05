@@ -10,6 +10,7 @@
   "files": [
     "mcp-sqlite-server.js",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "engines": {
