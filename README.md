@@ -24,6 +24,7 @@ e.g. Cursor:
         "MCP SQLite Server": {
             "command": "npx",
             "args": [
+                "-y",
                 "mcp-sqlite",
                 "<path-to-your-sqlite-database.db>"
             ]
@@ -41,6 +42,7 @@ e.g. Cursor:
             "args": [
                 "/c",
                 "npx",
+                "-y",
                 "mcp-sqlite",
                 "<path-to-your-sqlite-database.db>"
             ]
