@@ -1,4 +1,4 @@
-# MCP SQLite Server
+# 🐇 MCP SQLite Server
 This is a Model Context Protocol (MCP) server that provides comprehensive SQLite database interaction capabilities.
 
 ![cursor-settings](https://raw.githubusercontent.com/jparkerweb/mcp-sqlite/refs/heads/main/.readme/mcp-sqlite.jpg)
