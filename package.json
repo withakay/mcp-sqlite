@@ -1,0 +1,49 @@
+{
+  "name": "mcp-sqlite",
+  "version": "1.0.0",
+  "description": "Model Context Protocol (MCP) server that provides comprehensive SQLite database interaction capabilities",
+  "main": "mcp-sqlite-server.js",
+  "bin": {
+    "mcp-sqlite-server": "./mcp-sqlite-server.js"
+  },
+  "type": "commonjs",
+  "files": [
+    "mcp-sqlite-server.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jparkerweb/mcp-sqlite.git"
+  },
+  "homepage": "https://github.com/jparkerweb/mcp-sqlite#readme",
+  "bugs": {
+    "url": "https://github.com/jparkerweb/mcp-sqlite/issues",
+    "email": "equilllabs@gmail.com"
+  },
+  "author": "jparkerweb@gmail.com",
+  "license": "ISC",
+  "scripts": {
+    "test": "npx @modelcontextprotocol/inspector mcp-sqlite-server.js",
+    "clean": "npx rimraf node_modules package-lock.json && npm install",
+    "postinstall": "node -e \"console.log('\\nMCP SQLite server installed! Run with: npx mcp-sqlite-server <database-path>')\""
+  },
+  "keywords": [
+    "mcp",
+    "sqlite",
+    "database",
+    "llm",
+    "cursor",
+    "windsurf",
+    "ide",
+    "development",
+    "tooling"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "sqlite3": "^5.1.7"
+  }
+}
