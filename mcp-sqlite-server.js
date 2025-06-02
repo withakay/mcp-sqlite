@@ -71,7 +71,9 @@ async function main() {
     // Add a database info tool for debugging
     server.tool(
         "db_info",
-        {},
+        {
+            description: "Get information about the SQLite database including path, existence, size, and table count"
+        },
         async () => {
             try {
                 const dbExists = existsSync(absoluteDbPath);
@@ -116,6 +118,7 @@ async function main() {
     server.tool(
         "query",
         { 
+            description: "Execute a raw SQL query against the database with optional parameter values",
             sql: z.string(),
             values: z.array(z.any()).optional()
         },
@@ -143,7 +146,9 @@ async function main() {
     // List Tables
     server.tool(
         "list_tables",
-        {},
+        {
+            description: "List all user tables in the SQLite database (excludes system tables)"
+        },
         async () => {
             try {
                 const tables = await handler.listTables();
@@ -183,7 +188,10 @@ async function main() {
     // Get Table Schema
     server.tool(
         "get_table_schema",
-        { tableName: z.string() },
+        { 
+            description: "Get the schema information for a specific table including column names, types, and constraints",
+            tableName: z.string() 
+        },
         async ({ tableName }) => {
             try {
                 const schema = await handler.getTableSchema(tableName);
@@ -209,6 +217,7 @@ async function main() {
     server.tool(
         "create_record",
         { 
+            description: "Insert a new record into the specified table with the provided data",
             table: z.string(),
             data: z.record(z.any())
         },
@@ -246,6 +255,7 @@ async function main() {
     server.tool(
         "read_records",
         { 
+            description: "Read records from a table with optional filtering conditions, limit, and offset for pagination",
             table: z.string(),
             conditions: z.record(z.any()).optional(),
             limit: z.number().optional(),
@@ -298,6 +308,7 @@ async function main() {
     server.tool(
         "update_records",
         { 
+            description: "Update existing records in a table based on specified conditions with new data values",
             table: z.string(),
             data: z.record(z.any()),
             conditions: z.record(z.any())
@@ -340,6 +351,7 @@ async function main() {
     server.tool(
         "delete_records",
         { 
+            description: "Delete records from a table that match the specified conditions",
             table: z.string(),
             conditions: z.record(z.any())
         },
