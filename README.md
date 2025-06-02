@@ -33,7 +33,7 @@ e.g. Cursor:
 }
 ```
 
-`Windows` users will need to use the `cmd /c` as follows:
+`Windows` users **may** need to use the `cmd /c` as follows:
 ```json
 {
     "mcpServers": {
