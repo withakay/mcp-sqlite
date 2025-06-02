@@ -17,7 +17,7 @@ This is a Model Context Protocol (MCP) server that provides comprehensive SQLite
 
 Define the command in your IDE's MCP Server settings:
 
-e.g. Cursor:
+e.g. `Cursor`:
 ```json
 {
     "mcpServers": {
@@ -33,15 +33,14 @@ e.g. Cursor:
 }
 ```
 
-`Windows` users **may** need to use the `cmd /c` as follows:
+e.g. `VSCode`:
 ```json
 {
-    "mcpServers": {
+    "servers": {
         "MCP SQLite Server": {
-            "command": "cmd",
+            "type": "stdio",
+            "command": "npx",
             "args": [
-                "/c",
-                "npx",
                 "-y",
                 "mcp-sqlite",
                 "<path-to-your-sqlite-database.db>"
