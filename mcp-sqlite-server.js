@@ -119,7 +119,7 @@ async function main() {
         "Execute a raw SQL query against the database with optional parameter values",
         { 
             sql: z.string(),
-            values: z.array(z.any()).optional()
+            values: z.array(z.union([z.string(), z.number(), z.boolean(), z.null()])).optional()
         },
         async ({ sql, values }) => {
             try {
