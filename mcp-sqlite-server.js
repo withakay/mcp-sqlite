@@ -71,9 +71,8 @@ async function main() {
     // Add a database info tool for debugging
     server.tool(
         "db_info",
-        {
-            description: "Get information about the SQLite database including path, existence, size, and table count"
-        },
+        "Get information about the SQLite database including path, existence, size, and table count",
+        {},
         async () => {
             try {
                 const dbExists = existsSync(absoluteDbPath);
@@ -117,8 +116,8 @@ async function main() {
     // Register SQLite query tool
     server.tool(
         "query",
+        "Execute a raw SQL query against the database with optional parameter values",
         { 
-            description: "Execute a raw SQL query against the database with optional parameter values",
             sql: z.string(),
             values: z.array(z.any()).optional()
         },
@@ -146,9 +145,8 @@ async function main() {
     // List Tables
     server.tool(
         "list_tables",
-        {
-            description: "List all user tables in the SQLite database (excludes system tables)"
-        },
+        "List all user tables in the SQLite database (excludes system tables)",
+        {},
         async () => {
             try {
                 const tables = await handler.listTables();
@@ -188,8 +186,8 @@ async function main() {
     // Get Table Schema
     server.tool(
         "get_table_schema",
+        "Get the schema information for a specific table including column details",
         { 
-            description: "Get the schema information for a specific table including column names, types, and constraints",
             tableName: z.string() 
         },
         async ({ tableName }) => {
@@ -216,8 +214,8 @@ async function main() {
     // Create Record
     server.tool(
         "create_record",
+        "Insert a new record into a table with specified data",
         { 
-            description: "Insert a new record into the specified table with the provided data",
             table: z.string(),
             data: z.record(z.any())
         },
@@ -254,8 +252,8 @@ async function main() {
     // Read Records
     server.tool(
         "read_records",
+        "Read records from a table with optional conditions, limit, and offset",
         { 
-            description: "Read records from a table with optional filtering conditions, limit, and offset for pagination",
             table: z.string(),
             conditions: z.record(z.any()).optional(),
             limit: z.number().optional(),
@@ -307,8 +305,8 @@ async function main() {
     // Update Records
     server.tool(
         "update_records",
+        "Update records in a table based on specified conditions",
         { 
-            description: "Update existing records in a table based on specified conditions with new data values",
             table: z.string(),
             data: z.record(z.any()),
             conditions: z.record(z.any())
@@ -350,8 +348,8 @@ async function main() {
     // Delete Records
     server.tool(
         "delete_records",
+        "Delete records from a table based on specified conditions",
         { 
-            description: "Delete records from a table that match the specified conditions",
             table: z.string(),
             conditions: z.record(z.any())
         },
