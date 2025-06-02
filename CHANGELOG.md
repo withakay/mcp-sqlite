@@ -2,8 +2,14 @@
 
 All notable changes to the MCP SQLite Server will be documented in this file.
 
-## [1.0.0] - 2025-04-05
+## [1.0.7] - 2025-06-02
+### 📦 Updated
+- Added a "description" parameter to each tool definitions for better Agent selection
 
+### 🐛 Fixed
+- Resolved a know validation issue with VS Code that requires stricter JSON schema validation
+
+## [1.0.0] - 2025-04-05
 ### ✨ Added
 - Initial release of MCP SQLite Server
 - Complete set of CRUD operations:
