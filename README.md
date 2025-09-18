@@ -26,6 +26,7 @@ e.g. `Cursor`:
             "args": [
                 "-y",
                 "mcp-sqlite",
+                "--allow-runtime-db-path",
                 "<path-to-your-sqlite-database.db>"
             ]
         }
@@ -43,6 +44,7 @@ e.g. `VSCode`:
             "args": [
                 "-y",
                 "mcp-sqlite",
+                "--allow-runtime-db-path",
                 "<path-to-your-sqlite-database.db>"
             ]
         }
@@ -52,9 +54,47 @@ e.g. `VSCode`:
 
 ![cursor-settings](https://raw.githubusercontent.com/jparkerweb/mcp-sqlite/refs/heads/main/.readme/cursor-mcp-settings.jpg)
 
-Your database path must be provided as an argument.
+Your database path must be provided as an argument. Include the optional `--allow-runtime-db-path` flag to enable runtime database switching and expose additional management tools.
 
 ## Available Tools
+
+### Database Management
+
+#### set_database_path
+
+Change the connected database to an existing file.
+
+Parameters:
+- `dbPath` (string): Path to an existing SQLite database file.
+
+Example:
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "set_database_path",
+    "arguments": { "dbPath": "/path/to/database.db" }
+  }
+}
+```
+
+#### create_database
+
+Create a new SQLite database and switch to it.
+
+Parameters:
+- `dbPath` (string): Path for the new database file.
+
+Example:
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "create_database",
+    "arguments": { "dbPath": "/path/to/new.db" }
+  }
+}
+```
 
 ### Database Information
 

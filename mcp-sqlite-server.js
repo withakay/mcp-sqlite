@@ -19,6 +19,25 @@ class SQLiteHandler {
         });
     }
 
+    async setDatabasePath(newPath) {
+        return new Promise((resolve, reject) => {
+            this.db.close((closeErr) => {
+                if (closeErr) {
+                    return reject(closeErr);
+                }
+
+                this.dbPath = newPath;
+                this.db = new sqlite3.Database(newPath, (openErr) => {
+                    if (openErr) {
+                        reject(openErr);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+        });
+    }
+
     async executeQuery(sql, values = []) {
         return new Promise((resolve, reject) => {
             this.db.all(sql, values, (err, rows) => {
@@ -58,15 +77,48 @@ class SQLiteHandler {
 }
 
 async function main() {
-    const dbPath = process.argv[2] || 'mydatabase.db';
-    
+    const args = process.argv.slice(2);
+    let allowRuntimeDbPath = false;
+    let dbPath = 'mydatabase.db';
+
+    for (const arg of args) {
+        if (arg === '--allow-runtime-db-path') {
+            allowRuntimeDbPath = true;
+        } else if (!arg.startsWith('--') && dbPath === 'mydatabase.db') {
+            dbPath = arg;
+        }
+    }
+
     // Resolve to absolute path if relative
-    const absoluteDbPath = path.isAbsolute(dbPath) ? dbPath : path.resolve(process.cwd(), dbPath);
-    const handler = new SQLiteHandler(absoluteDbPath);
+    let currentDbPath = path.isAbsolute(dbPath) ? dbPath : path.resolve(process.cwd(), dbPath);
+    const handler = new SQLiteHandler(currentDbPath);
     const server = new McpServer({
         name: "mcp-sqlite-server",
-        version: "1.0.0"
+        version: "1.1.0"
     });
+
+    async function getDbInfo(dbPath) {
+        const dbExists = existsSync(dbPath);
+        let fileSize = 0;
+        let fileStats = null;
+
+        if (dbExists) {
+            fileStats = statSync(dbPath);
+            fileSize = fileStats.size;
+        }
+
+        const tableCountResult = await handler.executeQuery(
+            "SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+        );
+
+        return {
+            dbPath: dbPath,
+            exists: dbExists,
+            size: fileSize,
+            lastModified: dbExists ? fileStats.mtime.toString() : null,
+            tableCount: tableCountResult[0].count
+        };
+    }
 
     // Add a database info tool for debugging
     server.tool(
@@ -75,43 +127,108 @@ async function main() {
         {},
         async () => {
             try {
-                const dbExists = existsSync(absoluteDbPath);
-                let fileSize = 0;
-                let fileStats = null;
-                
-                if (dbExists) {
-                    fileStats = statSync(absoluteDbPath);
-                    fileSize = fileStats.size;
-                }
-                
-                // Get table count
-                const tableCountResult = await handler.executeQuery(
-                    "SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-                );
-                
+                const info = await getDbInfo(currentDbPath);
                 return {
-                    content: [{ 
-                        type: "text", 
-                        text: JSON.stringify({
-                            dbPath: absoluteDbPath,
-                            exists: dbExists,
-                            size: fileSize,
-                            lastModified: dbExists ? fileStats.mtime.toString() : null,
-                            tableCount: tableCountResult[0].count
-                        }, null, 2) 
+                    content: [{
+                        type: "text",
+                        text: JSON.stringify(info, null, 2)
                     }]
                 };
             } catch (error) {
                 return {
-                    content: [{ 
-                        type: "text", 
-                        text: `Error getting database info: ${error.message}` 
+                    content: [{
+                        type: "text",
+                        text: `Error getting database info: ${error.message}`
                     }],
                     isError: true
                 };
             }
         }
     );
+
+    if (allowRuntimeDbPath) {
+        server.tool(
+            "set_database_path",
+            "Change the SQLite database path to an existing database file",
+            { dbPath: z.string() },
+            async ({ dbPath }) => {
+                try {
+                    const newAbsoluteDbPath = path.isAbsolute(dbPath)
+                        ? dbPath
+                        : path.resolve(process.cwd(), dbPath);
+
+                    if (!existsSync(newAbsoluteDbPath)) {
+                        return {
+                            content: [{
+                                type: "text",
+                                text: `Database file does not exist at path: ${newAbsoluteDbPath}`
+                            }],
+                            isError: true
+                        };
+                    }
+
+                    await handler.setDatabasePath(newAbsoluteDbPath);
+                    currentDbPath = newAbsoluteDbPath;
+                    const info = await getDbInfo(currentDbPath);
+                    return {
+                        content: [{
+                            type: "text",
+                            text: JSON.stringify(info, null, 2)
+                        }]
+                    };
+                } catch (error) {
+                    return {
+                        content: [{
+                            type: "text",
+                            text: `Error setting database path: ${error.message}`
+                        }],
+                        isError: true
+                    };
+                }
+            }
+        );
+
+        server.tool(
+            "create_database",
+            "Create a new SQLite database and switch to it",
+            { dbPath: z.string() },
+            async ({ dbPath }) => {
+                try {
+                    const newAbsoluteDbPath = path.isAbsolute(dbPath)
+                        ? dbPath
+                        : path.resolve(process.cwd(), dbPath);
+
+                    if (existsSync(newAbsoluteDbPath)) {
+                        return {
+                            content: [{
+                                type: "text",
+                                text: `Database already exists at path: ${newAbsoluteDbPath}`
+                            }],
+                            isError: true
+                        };
+                    }
+
+                    await handler.setDatabasePath(newAbsoluteDbPath);
+                    currentDbPath = newAbsoluteDbPath;
+                    const info = await getDbInfo(currentDbPath);
+                    return {
+                        content: [{
+                            type: "text",
+                            text: JSON.stringify(info, null, 2)
+                        }]
+                    };
+                } catch (error) {
+                    return {
+                        content: [{
+                            type: "text",
+                            text: `Error creating database: ${error.message}`
+                        }],
+                        isError: true
+                    };
+                }
+            }
+        );
+    }
 
     // Register SQLite query tool
     server.tool(
@@ -157,10 +274,10 @@ async function main() {
                             type: "text", 
                             text: JSON.stringify({
                                 message: "No tables found in database",
-                                dbPath: absoluteDbPath,
-                                exists: existsSync(absoluteDbPath),
-                                size: existsSync(absoluteDbPath) ? statSync(absoluteDbPath).size : 0
-                            }, null, 2) 
+                                dbPath: currentDbPath,
+                                exists: existsSync(currentDbPath),
+                                size: existsSync(currentDbPath) ? statSync(currentDbPath).size : 0
+                            }, null, 2)
                         }]
                     };
                 }

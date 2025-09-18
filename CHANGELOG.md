@@ -2,6 +2,11 @@
 
 All notable changes to the MCP SQLite Server will be documented in this file.
 
+## [1.1.0] - 2025-06-03
+### ✨ Added
+- Optional `--allow-runtime-db-path` flag to enable changing the database path at runtime.
+- New `set_database_path` and `create_database` tools for managing database paths when the flag is enabled.
+
 ## [1.0.7] - 2025-06-02
 ### 📦 Updated
 - Added a "description" parameter to each tool definitions for better Agent selection
